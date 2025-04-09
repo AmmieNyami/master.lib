@@ -58,10 +58,23 @@ function wlib() {
 
 pushd src > /dev/null 2>&1
 
+# Build assembly files
 for file in *.asm; do
-    uasm -q -DVERSIONSTR="\"0.23\"" -D$_MEMORY_MODEL -DCALLMODEL=$_CALL_MODEL $file
+    out_file=$(basename "$file" .asm).o
+    if [ "$file" -nt "$out_file" ]; then
+        uasm -q -DVERSIONSTR="\"0.23\"" -D$_MEMORY_MODEL -DCALLMODEL=$_CALL_MODEL -Fo"$out_file" "$file"
+    fi
 done
-wlib -q -n ../$_OUTPUT_LIB *.o
+
+# Build final .lib file
+lib_needs_rebuild=false
+for file in *.o; do
+    if [ "$file" -nt ../$_OUTPUT_LIB ]; then
+        lib_needs_rebuild=true
+        break
+    fi
+done
+[ $lib_needs_rebuild = true ] && wlib -q -n ../$_OUTPUT_LIB *.o
 
 popd > /dev/null 2>&1
 
