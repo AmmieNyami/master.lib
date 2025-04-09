@@ -51,12 +51,17 @@ function uasm() {
     command uasm $@
 }
 
+function wlib() {
+    echo wlib $@
+    command wlib $@
+}
+
 pushd src > /dev/null 2>&1
 
 for file in *.asm; do
-    uasm -DVERSIONSTR="\"0.23\"" -D$_MEMORY_MODEL -DCALLMODEL=$_CALL_MODEL $file
+    uasm -q -DVERSIONSTR="\"0.23\"" -D$_MEMORY_MODEL -DCALLMODEL=$_CALL_MODEL $file
 done
-wlib ../$_OUTPUT_LIB *.o
+wlib -q -n ../$_OUTPUT_LIB *.o
 
 popd > /dev/null 2>&1
 
